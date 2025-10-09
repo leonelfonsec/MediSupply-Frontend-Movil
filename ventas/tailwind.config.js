@@ -8,7 +8,17 @@ module.exports = {
   ],
   presets: [require("nativewind/preset")],
   theme: {
-    extend: {},
+    extend: {
+
+      fontFamily: {
+        'public-regular': ['PublicSans-Regular', "sans-serif"],
+        'public-medium': ['PublicSans-Medium', "sans-serif"],
+        'public-bold': ['PublicSans-Bold', "sans-serif"],
+        'public-black': ['PublicSans-Black', "sans-serif"],
+        'sans': ['PublicSans-Regular', "sans-serif"], // Esto sobrescribe la fuente sans por defecto
+      }
+
+    },
   },
   plugins: [],
 }
