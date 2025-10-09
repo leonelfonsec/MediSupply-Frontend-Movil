@@ -6,7 +6,7 @@ on:
     paths:
       - 'ventas/**'
   push:
-    branches: [ test/ci-cd ]
+    branches: [ develop ]
 
 jobs:
   CI_React_Native:
