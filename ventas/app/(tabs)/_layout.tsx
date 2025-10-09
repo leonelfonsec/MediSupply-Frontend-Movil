@@ -1,6 +1,6 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
@@ -12,7 +12,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primary,
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primary500,
         tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].neutral500,
         headerShown: false,
         tabBarButton: HapticTab,

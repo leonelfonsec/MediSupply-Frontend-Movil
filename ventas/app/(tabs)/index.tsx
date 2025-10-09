@@ -1,10 +1,9 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar } from 'react-native';
+import { FlatList, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { Colors } from '@/constants/theme';
+import '../../global.css';
 
 const mockClients = [
   {
@@ -54,44 +53,72 @@ export default function ClientesScreen() {
 
   const renderClient = ({ item }: { item: typeof mockClients[0] }) => (
     <TouchableOpacity
-      style={styles.clientItem}
+      className="flex-row items-center px-4 py-4 bg-white active:bg-neutral-50"
       onPress={() => router.push(`/cliente/${item.id}` as any)}
       activeOpacity={0.7}
     >
-      <View style={[styles.avatar, { backgroundColor: item.avatarColor }]}>
-        <Text style={styles.avatarText}>{item.avatar}</Text>
+      <View 
+        className="w-12 h-12 rounded-full items-center justify-center mr-4"
+        style={{ backgroundColor: item.avatarColor }}
+      >
+        <Text className="text-white text-base font-public-bold">
+          {item.avatar}
+        </Text>
       </View>
-      <View style={styles.clientInfo}>
-        <Text style={styles.clientName}>{item.name}</Text>
-        <Text style={styles.clientInstitution}>{item.institution}</Text>
+      <View className="flex-1">
+        <Text className="text-base font-public-medium text-neutral-900 mb-1">
+          {item.name}
+        </Text>
+        <Text className="text-sm text-neutral-500">
+          {item.institution}
+        </Text>
       </View>
-      <MaterialIcons name="arrow-forward-ios" size={16} color={Colors.light.neutral400} />
+      <MaterialIcons name="arrow-forward-ios" size={16} color="#a3a3a3" />
     </TouchableOpacity>
   );
 
+  const renderSeparator = () => (
+    <View className="h-px bg-neutral-100 ml-20" />
+  );
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.container}>
+    <SafeAreaView className="flex-1 bg-neutral-100" edges={['top']}>
+      <View className="flex-1 bg-neutral-100">
         <StatusBar backgroundColor="white" barStyle="dark-content" />
         
         {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={styles.headerSpacer} />
-            <Text style={styles.headerTitle}>Clientes</Text>
-            <TouchableOpacity style={styles.addButton}>
+        <View className="bg-white shadow-sm" style={{ 
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.1,
+          shadowRadius: 2,
+          elevation: 3,
+        }}>
+          {/* Header Top */}
+          <View className="flex-row items-center justify-between px-4 py-4">
+            <View className="w-8" />
+            <Text className="text-xl font-public-bold text-neutral-900 flex-1 text-center">
+              Clientes
+            </Text>
+            <TouchableOpacity className="w-8 h-8 rounded-full bg-primary-500 items-center justify-center">
               <MaterialIcons name="add" size={20} color="white" />
             </TouchableOpacity>
           </View>
           
           {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <View style={styles.searchInputContainer}>
-              <MaterialIcons name="search" size={20} color={Colors.light.neutral500} style={styles.searchIcon} />
+          <View className="px-4 pb-4">
+            <View className="relative">
+              <MaterialIcons 
+                name="search" 
+                size={20} 
+                color="#737373" 
+                className="absolute left-3 top-3 z-10"
+                style={{ position: 'absolute', left: 12, top: 12, zIndex: 1 }}
+              />
               <TextInput
-                style={styles.searchInput}
+                className="bg-neutral-100 rounded-3xl py-2 pl-10 pr-4 text-base text-neutral-900"
                 placeholder="Buscar clientes"
-                placeholderTextColor={Colors.light.neutral500}
+                placeholderTextColor="#737373"
                 value={searchText}
                 onChangeText={setSearchText}
               />
@@ -99,14 +126,18 @@ export default function ClientesScreen() {
           </View>
           
           {/* Filter Buttons */}
-          <View style={styles.filtersContainer}>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterButtonText}>Estado</Text>
-              <MaterialIcons name="expand-more" size={16} color={Colors.light.neutral500} />
+          <View className="flex-row gap-2 px-4 pb-3">
+            <TouchableOpacity className="flex-row items-center bg-neutral-100 px-4 py-2 rounded-2xl gap-2">
+              <Text className="text-sm font-public-medium text-neutral-900">
+                Estado
+              </Text>
+              <MaterialIcons name="expand-more" size={16} color="#737373" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterButtonText}>Tipo de cliente</Text>
-              <MaterialIcons name="expand-more" size={16} color={Colors.light.neutral500} />
+            <TouchableOpacity className="flex-row items-center bg-neutral-100 px-4 py-2 rounded-2xl gap-2">
+              <Text className="text-sm font-public-medium text-neutral-900">
+                Tipo de cliente
+              </Text>
+              <MaterialIcons name="expand-more" size={16} color="#737373" />
             </TouchableOpacity>
           </View>
         </View>
@@ -116,134 +147,10 @@ export default function ClientesScreen() {
           data={filteredClients}
           renderItem={renderClient}
           keyExtractor={item => item.id}
-          style={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          className="flex-1 bg-white"
+          ItemSeparatorComponent={renderSeparator}
         />
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.neutral100,
-  },
-  header: {
-    backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  headerSpacer: {
-    width: 32,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: Colors.light.neutral900,
-    flex: 1,
-    textAlign: 'center',
-  },
-  addButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.light.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  searchInputContainer: {
-    position: 'relative',
-  },
-  searchIcon: {
-    position: 'absolute',
-    left: 12,
-    top: 12,
-    zIndex: 1,
-  },
-  searchInput: {
-    backgroundColor: Colors.light.neutral100,
-    borderRadius: 24,
-    paddingVertical: 8,
-    paddingLeft: 40,
-    paddingRight: 16,
-    fontSize: 16,
-    color: Colors.light.neutral900,
-  },
-  filtersContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light.neutral100,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 8,
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: Colors.light.neutral900,
-  },
-  list: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  clientItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: 'white',
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  avatarText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  clientInfo: {
-    flex: 1,
-  },
-  clientName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.light.neutral900,
-    marginBottom: 4,
-  },
-  clientInstitution: {
-    fontSize: 14,
-    color: Colors.light.neutral500,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: Colors.light.neutral100,
-    marginLeft: 80,
-  },
-});   
