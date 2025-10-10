@@ -49,3 +49,5 @@ ui-mocks/
 
 # Coverage
 /coverage
+
+.npmrc
