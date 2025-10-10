@@ -5,9 +5,9 @@ on:
     branches: [main]
     paths:
       - 'ventas/**'
-  push:
-    branches: [test/ci-cd]
-  workflow_dispatch:
+  # push:
+  #   branches: [test/ci-cd]
+  
 
 jobs:
   build_or_reuse_apk:

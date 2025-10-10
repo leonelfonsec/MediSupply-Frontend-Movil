@@ -3,10 +3,10 @@ name: CI - clientes
 on:
   pull_request:
     branches: [develop]
-  push:
-    branches: [ test/ci-cd ]
     paths:
       - 'clientes/**'
+  push:
+    branches: [ test/ci-cd ]
 
 jobs:
   CI_React_Native:

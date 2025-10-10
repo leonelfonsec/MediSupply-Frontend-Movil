@@ -5,10 +5,10 @@ on:
     branches: [develop]
     paths:
       - 'ventas/**'
-  push:
-    branches: [ develop ]
-    paths:
-      - 'ventas/**'
+  # push:
+  #   branches: [ develop ]
+  #   paths:
+  #     - 'ventas/**'
 
 jobs:
   CI_React_Native:
