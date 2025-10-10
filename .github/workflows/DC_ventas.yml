@@ -14,7 +14,9 @@ jobs:
     defaults:
       run:
         working-directory: ventas
-
+    env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }} 
+        
     steps:
       # 1) Descargar el código del repositorio
       - name: Download code
@@ -35,8 +37,7 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      - name: Expo login
-        run: eas login --token ${{ secrets.EXPO_TOKEN }}
+      
 
       - name: Build APK (preview)
         id: build
