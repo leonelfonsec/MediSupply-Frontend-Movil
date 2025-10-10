@@ -16,7 +16,7 @@ jobs:
         working-directory: ventas
     env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }} 
-        
+
     steps:
       # 1) Descargar el código del repositorio
       - name: Download code
@@ -39,17 +39,19 @@ jobs:
 
       
 
-      - name: Build APK (preview)
-        id: build
-        run: |
-          OUT=$(eas build --platform android --profile preview --non-interactive --json)
-          echo "$OUT"
-          ID=$(echo "$OUT" | node -e "const d=JSON.parse(fs.readFileSync(0,'utf8')); console.log(d[0].id)")
-          echo "build_id=$ID" >> $GITHUB_OUTPUT
+    #   - name: Build APK (preview)
+    #     id: build
+    #     run: |
+    #       OUT=$(eas build --platform android --profile preview --non-interactive --json)
+    #       echo "$OUT"
+    #       ID=$(echo "$OUT" | node -e "const d=JSON.parse(fs.readFileSync(0,'utf8')); console.log(d[0].id)")
+    #       echo "build_id=$ID" >> $GITHUB_OUTPUT
 
       - name: Download APK
-        run: eas build:download --buildId ${{ steps.build.outputs.build_id }} --path app-preview.apk
-
+        run: |
+            mkdir -p dist
+            eas build:artifacts:download --latest --platform android --output dist/app-preview.apk
+            
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
