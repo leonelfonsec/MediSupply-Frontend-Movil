@@ -35,7 +35,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Install EAS CLI
-        run: npm i -g eas-cli
+        run: npm i -g eas-cli@latest
 
       
 
