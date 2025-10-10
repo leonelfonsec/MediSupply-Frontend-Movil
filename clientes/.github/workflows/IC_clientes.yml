@@ -3,8 +3,6 @@ name: CI - clientes
 on:
   pull_request:
     branches: [develop]
-    paths:
-      - 'clientes/**'
   push:
     branches: [ test/ci-cd ]
     paths:
