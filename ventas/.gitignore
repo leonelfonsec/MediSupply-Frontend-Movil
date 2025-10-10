@@ -46,3 +46,6 @@ app-example
 .vscode/
 .history/
 ui-mocks/
+
+# Coverage
+/coverage
