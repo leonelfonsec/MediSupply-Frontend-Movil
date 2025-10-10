@@ -65,9 +65,9 @@ jobs:
         id: reuse
         if: steps.changes.outputs.app_any_changed != 'true'
         run: |
-          OUT=$(npx --yes eas-cli@latest build:list --platform android --status finished --limit 1 --json)
-          echo "$OUT" > last.json
-          echo "artifact_url=$(node -e "const d=JSON.parse(require('fs').readFileSync('last.json','utf8'))[0]; console.log((d?.artifacts && (d.artifacts.buildUrl || d.artifacts.applicationArchiveUrl)) || '')")" >> $GITHUB_OUTPUT
+            OUT=$(npx --yes eas-cli@latest build:list --platform android --status finished --limit 1 --non-interactive --json)
+            echo "$OUT" > last.json
+            echo "artifact_url=$(node -e "const d=JSON.parse(require('fs').readFileSync('last.json','utf8'))[0]; console.log((d?.artifacts && (d.artifacts.buildUrl || d.artifacts.applicationArchiveUrl)) || '')")" >> $GITHUB_OUTPUT
 
       # Descargar el APK (venga de build nuevo o del último)
       - name: Download APK
