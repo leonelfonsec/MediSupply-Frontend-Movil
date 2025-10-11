@@ -5,8 +5,8 @@ on:
     branches: [main]
     paths:
       - 'clientes/**'
-  push:
-    branches: [test/ci-cd]
+  # push:
+  #   branches: [test/ci-cd]
 
 jobs:
   build_or_reuse_apk:
