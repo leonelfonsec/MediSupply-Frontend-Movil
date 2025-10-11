@@ -5,8 +5,8 @@ on:
     branches: [develop]
     paths:
       - 'clientes/**'
-  push:
-    branches: [ test/ci-cd ]
+  # push:
+  #   branches: [ test/ci-cd ]
 
 jobs:
   IC_clientes:
