@@ -1,12 +1,12 @@
 import { Colors } from '@/constants/theme';
 import { PermissionStatus } from '@/infrastructure/interfaces/location';
 import { usePermissionsStore } from '@/store/usePermissions';
+import { CalendarDrawer } from '@/components/CalendarDrawer';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 const VISITAS = [
   { id: '1', nombre: 'Clínica San Lucas', hora: '10:00 AM' },
@@ -16,10 +16,21 @@ const VISITAS = [
 
 export default function RutaScreen() {
   const { locationStatus, requestLocationPermission, checkLocationPermission } = usePermissionsStore();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     console.log('Location status:', locationStatus);
   }, [locationStatus]);
+
+  const formatSelectedDate = () => {
+    const options: Intl.DateTimeFormatOptions = { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    };
+    return selectedDate.toLocaleDateString('es-ES', options);
+  };
 
   const getPermissionStatusText = () => {
     switch (locationStatus) {
@@ -69,7 +80,21 @@ export default function RutaScreen() {
         shadowRadius: 2,
         elevation: 3,
       }}>
-        <Text className="text-xl font-bold text-neutral-900 text-center">Ruta</Text>
+        <View className="flex-row items-center justify-between">
+          <View className="w-8" />
+          <Text className="text-xl font-bold text-neutral-900 text-center flex-1">Ruta</Text>
+          <TouchableOpacity 
+            onPress={() => setShowCalendar(true)}
+            className="w-8 h-8 items-center justify-center"
+          >
+            <MaterialIcons name="event" size={24} color={Colors.light.primary500} />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Fecha seleccionada */}
+        <Text className="text-sm text-neutral-500 text-center mt-1">
+          {formatSelectedDate()}
+        </Text>
       </View>
 
       {/* Contenido principal: mapa + hoja inferior */}
@@ -184,6 +209,14 @@ export default function RutaScreen() {
           />
         </View>
       </View>
+
+      {/* Calendar Drawer */}
+      <CalendarDrawer
+        visible={showCalendar}
+        onClose={() => setShowCalendar(false)}
+        selectedDate={selectedDate}
+        onDateSelect={setSelectedDate}
+      />
     </SafeAreaView>
   );
 }
