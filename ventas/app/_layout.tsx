@@ -10,6 +10,14 @@ import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import "../global.css";
 
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+
+// Create a client
+const queryClient = new QueryClient()
+
 export const unstable_settings = {
   anchor: '(tabs)',
 };
@@ -35,6 +43,7 @@ export default function RootLayout() {
   
 
   return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -42,5 +51,6 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </QueryClientProvider>
   );
 }
