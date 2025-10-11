@@ -41,6 +41,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           <Stack.Screen name="cliente/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="permissions/index" options={{ headerShown: false }} />        
         </Stack>
         <StatusBar style="auto" translucent={false}/>
       </ThemeProvider>
