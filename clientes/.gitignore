@@ -45,3 +45,5 @@ app-example
 # VS Code
 .vscode/
 .history/
+
+.npmrc
