@@ -29,4 +29,29 @@ module.exports = {
     '\\.(png|jpg|jpeg|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
   resolver: 'react-native/jest/resolver',
+  // === Cobertura ===
+  collectCoverage: true,
+  collectCoverageFrom: [
+    // típicos paths en Expo + expo-router
+    'app/**/*.{js,jsx,ts,tsx}',
+    // 'src/**/*.{js,jsx,ts,tsx}',
+    // excluye archivos que no tiene sentido medir
+    '!**/__tests__/**',
+    '!**/*.d.ts',
+    '!**/jest.config.*',
+    '!**/jest.setup.*',
+  ],
+  coverageReporters: ['text', 'lcov', 'html'], // 'text' para consola, 'lcov' para Codecov, 'html' para navegar
+  coverageDirectory: '<rootDir>/coverage',
+
+  // (opcional) umbrales mínimos para “aprobar” CI
+  // súbelos cuando ya tengas más tests
+  coverageThreshold: {
+    global: {
+      lines: 10,
+      statements: 10,
+      branches: 0,
+      functions: 5,
+    },
+  },
 };

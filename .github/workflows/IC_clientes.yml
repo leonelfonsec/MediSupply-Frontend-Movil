@@ -36,3 +36,16 @@ jobs:
       # 4) Ejecutar pruebas de Jest
       - name: Run Jest
         run: npm test -- --ci --maxWorkers=50%
+
+      # 5) Generacion de reportes de cobertura
+      - name: Upload coverage summary (LCOV)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: ventas/coverage/lcov.info
+
+      - name: Upload coverage HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: ventas/coverage
