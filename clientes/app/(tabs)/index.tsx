@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
@@ -25,6 +26,10 @@ export default function CatalogoScreen() {
     { id: '4', name: 'Equipos', active: false }
   ];
 
+  const navigateToCart = () => {
+    router.push('/carrito');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background-light">
       <StatusBar style="dark" />
@@ -41,7 +46,7 @@ export default function CatalogoScreen() {
           </Text>
           
           <View className="relative">
-            <TouchableOpacity className="p-2">
+            <TouchableOpacity className="p-2" onPress={navigateToCart}>
               <Ionicons name="cart-outline" size={24} color="#1193d4" />
             </TouchableOpacity>
             <View className="absolute -top-1 -right-1 bg-primary rounded-full h-5 w-5 items-center justify-center">
