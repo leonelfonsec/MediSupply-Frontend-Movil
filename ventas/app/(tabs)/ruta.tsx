@@ -1,10 +1,11 @@
+import { CalendarDrawer } from '@/components/CalendarDrawer';
 import { Colors } from '@/constants/theme';
+import { useRutas } from '@/hooks/useRutas';
 import { PermissionStatus } from '@/infrastructure/interfaces/location';
 import { usePermissionsStore } from '@/store/usePermissions';
-import { CalendarDrawer } from '@/components/CalendarDrawer';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -19,9 +20,17 @@ export default function RutaScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
+  const VENDEDOR_ID = 1;
+  const fechaISO = selectedDate.toISOString().slice(0, 10);
+  const { data, isLoading, isError, error, refetch, isRefetching } = useRutas(fechaISO, VENDEDOR_ID);
+
   useEffect(() => {
     console.log('Location status:', locationStatus);
   }, [locationStatus]);
+
+  useEffect(() => {
+    refetch();
+  }, [selectedDate]);
 
   const formatSelectedDate = () => {
     const options: Intl.DateTimeFormatOptions = { 
@@ -116,7 +125,7 @@ export default function RutaScreen() {
               onMapReady={() => console.log('Mapa listo')}
             >
               {/* Marcadores para las visitas */}
-              <Marker
+              {/* <Marker
                 coordinate={{ latitude: 4.7110, longitude: -74.0721 }}
                 title="Clínica San Lucas"
                 description="10:00 AM"
@@ -130,7 +139,16 @@ export default function RutaScreen() {
                 coordinate={{ latitude: 4.7090, longitude: -74.0701 }}
                 title="Consultorio Dr. Ramírez"
                 description="1:00 PM"
-              />
+              /> */}
+              {data?.visitas?.map((v) => (
+                <Marker
+                  key={v.id}
+                  coordinate={{ latitude: v.lat, longitude: v.lng }}
+                  title={v.cliente}
+                  description={`${v.hora} — ${v.direccion}`}
+                  pinColor="#E53935"
+                />
+              ))}
             </MapView>
           </View>
         ) : (
@@ -186,16 +204,27 @@ export default function RutaScreen() {
         }}>
           <Text className="text-base font-semibold text-neutral-900 mb-2">Visitas de hoy</Text>
 
+          {isLoading && (
+            <Text className="text-neutral-400 text-center mb-2">Cargando visitas...</Text>
+          )}
+          {isError && (
+            <Text className="text-red-500 text-center mb-2">
+              Error al cargar: {(error as any)?.message ?? 'Desconocido'}
+            </Text>
+          )}
           <FlatList
-            data={VISITAS}
-            keyExtractor={(item) => item.id}
+            refreshControl={
+              <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+            }
+            data={data?.visitas ?? []}
+            keyExtractor={(item) => item.id.toString()}
             ItemSeparatorComponent={() => <View className="h-px bg-neutral-200 ml-9" />}
             renderItem={({ item }) => (
               <TouchableOpacity className="py-3.5 flex-row items-center justify-between" activeOpacity={0.7}>
                 <View className="flex-row items-center gap-3 flex-1">
                   <MaterialIcons name="location-on" size={20} color="#E53935" />
                   <View className="flex-shrink">
-                    <Text className="text-[15px] font-semibold text-neutral-900">{item.nombre}</Text>
+                    <Text className="text-[15px] font-semibold text-neutral-900">{item.cliente}</Text>
                     <Text className="mt-0.5 text-xs text-neutral-500">{item.hora}</Text>
                   </View>
                 </View>
