@@ -1,62 +1,76 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React from 'react';
 import {
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { useCreateOrder } from "@/hooks/useCreateOrder";
+import { useCartStore } from "@/store/cartStore";
 
 export default function CarritoScreen() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: '1',
-      name: 'Guantes de látex',
-      price: 25.00,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=300&fit=crop'
-    },
-    {
-      id: '2',
-      name: 'Mascarillas N95',
-      price: 25.00,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=300&fit=crop'
-    },
-    {
-      id: '3',
-      name: 'Desinfectante de manos',
-      price: 25.00,
-      quantity: 3,
-      image: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=300&fit=crop'
-    }
-  ]);
+  const { 
+    items: cartItems, 
+    updateQuantity, 
+    clearCart, 
+    getSubtotal, 
+    getShipping, 
+    getTotalPrice 
+  } = useCartStore();
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      setCartItems(cartItems.filter(item => item.id !== id));
-    } else {
-      setCartItems(cartItems.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      ));
+  const subtotal = getSubtotal();
+  const shipping = getShipping();
+  const total = getTotalPrice();
+
+  const { mutateAsync, isPending } = useCreateOrder();
+
+  const confirmOrder = async () => {
+    if (cartItems.length === 0) {
+      Alert.alert("Carrito vacío", "Agrega productos antes de confirmar.");
+      return;
+    }
+
+    // Mapea tus items al formato del backend
+    const payload = {
+      customer_id: "hospital-central-001", // ID del cliente según el backend
+      shippingAddress: "Calle Principal 123, Ciudad, Estado",
+      items: cartItems.map((i) => ({
+        sku: i.code,               // SKU del producto (código)
+        name: i.name,
+        unitPrice: i.price,
+        qty: i.quantity,           // Backend espera 'qty' no 'quantity'
+      })),
+      totals: { subtotal, shipping, total },
+    };
+
+    try {
+      const res = await mutateAsync(payload);
+      console.log("✅ Orden creada:", res);
+      
+      // Limpiar el carrito después de la orden exitosa
+      clearCart();
+      
+      Alert.alert("Pedido confirmado", `Orden #${res?.id ?? "—"} creada con éxito`, [
+        { text: "OK", onPress: () => router.push("/(tabs)") }, // ajusta la ruta
+      ]);
+    } catch (e: any) {
+      console.log("❌ Error creando orden", e?.response?.data ?? e?.message);
+      const msg =
+        e?.response?.data?.message ||
+        e?.response?.data?.detail ||
+        e?.message ||
+        "Error desconocido";
+      Alert.alert("Error", msg);
     }
   };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 10.00;
-  const total = subtotal + shipping;
 
   return (
     <SafeAreaView className="flex-1 bg-background-light">
@@ -105,21 +119,21 @@ export default function CarritoScreen() {
                       
                       <View className="flex-row items-center gap-3">
                         <TouchableOpacity 
-                          className="w-8 h-8 border border-gray-300 rounded-full items-center justify-center"
+                          className="w-6 h-6 border border-gray-300 rounded-full items-center justify-center"
                           onPress={() => updateQuantity(item.id, item.quantity - 1)}
                         >
-                          <Ionicons name="remove" size={16} color="#6b7280" />
+                          <Ionicons name="remove" size={12} color="#6b7280" />
                         </TouchableOpacity>
                         
-                        <Text className="text-base font-medium text-gray-800 min-w-[24px] text-center">
-                          {item.quantity}
+                        <Text className="text-sm font-normal text-gray-500 mx-2">
+                          Cantidad: {item.quantity}
                         </Text>
                         
                         <TouchableOpacity 
-                          className="w-8 h-8 border border-gray-300 rounded-full items-center justify-center"
+                          className="w-6 h-6 border border-gray-300 rounded-full items-center justify-center"
                           onPress={() => updateQuantity(item.id, item.quantity + 1)}
                         >
-                          <Ionicons name="add" size={16} color="#6b7280" />
+                          <Ionicons name="add" size={12} color="#6b7280" />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -190,18 +204,18 @@ export default function CarritoScreen() {
 
       {/* Footer with Confirm Button */}
       <View className="bg-white p-4">
-        <TouchableOpacity 
-          className="w-full bg-primary rounded-lg h-14 items-center justify-center"
-          onPress={() => {
-            // Aquí iría la lógica para confirmar el pedido
-            console.log('Pedido confirmado');
-          }}
-        >
-          <Text className="text-white text-lg font-bold">
-            Confirmar pedido
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            className={`w-full bg-primary rounded-lg h-14 items-center justify-center ${isPending ? "opacity-70" : ""}`}
+            onPress={confirmOrder}
+            disabled={isPending}
+          >
+            {isPending ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white text-lg font-bold">Confirmar pedido</Text>
+            )}
+          </TouchableOpacity>
+        </View>
     </SafeAreaView>
   );
 }

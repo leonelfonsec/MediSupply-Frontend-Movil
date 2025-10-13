@@ -1,9 +1,9 @@
+import { useCartStore, type Product } from '@/store/cartStore';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
-  Dimensions,
   Image,
   ScrollView,
   Text,
@@ -13,11 +13,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
-
 export default function CatalogoScreen() {
-  const [cartCount, setCartCount] = useState(3);
-  const [quantity, setQuantity] = useState(1);
+  const { items, addItem, getTotalItems } = useCartStore();
+  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
   const categories = [
     { id: '1', name: 'Todos', active: true },
@@ -26,8 +24,46 @@ export default function CatalogoScreen() {
     { id: '4', name: 'Equipos', active: false }
   ];
 
+  // Productos de ejemplo
+  const products: Product[] = [
+    {
+      id: '1',
+      name: 'Guantes de Látex Estériles',
+      price: 12.50,
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBnVe6TTLAtBP3f7ITKxkn8CPgSrTrdBGwwYL8fDyKIxxCfevPmyV7x3ErBrlL_3lj5JKmn9BZd74llF4aZIyKUfcBK2p44A3WYNl-VA_PwKb3YKdWdY3CRCqzm4Ko8hfdUYK__Apz91609RvB-xJnDyZwH6Xc5cVXu6svoZfqj7qYvmnzwVY8kgVcYnCxZHz-OfUVXtQkRx0PpW5URzghYc9RTIcCwwPb7s8Vt2iPAzBepggJMt1tVpnxzLzE1g1RGYb7alyymGko',
+      code: 'GL-12345',
+      stock: 35
+    },
+    {
+      id: '2',
+      name: 'Solución Salina 0.9%',
+      price: 8.75,
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAelz3c4cLtYrkotptk3Uurd5o_H4_Hyb7jHo7hcWM6vB_nzh5tT59gKK9EOMG40fxj6x3lLq0IKdjJf26mAp7TR-NUwRcm5nDMYq0AIGPItG7IYQ6NgpQ375Tm3AA5ebjKCq6w90D14y7tHbtRmxY7M5ejZ8DJNFau2QKf9VW6zzsFCAh_NohukHjaKj3IEokURXKY2GSTgHRD3QurRXBrRl5y6545OTRDf2ALxmJDOxCZukogix2ha2HsuI5slK2ScBzX5lF8hs4',
+      code: 'SS-67890',
+      stock: 0
+    }
+  ];
+
   const navigateToCart = () => {
     router.push('/carrito');
+  };
+
+  const getQuantity = (productId: string) => {
+    return quantities[productId] || 1;
+  };
+
+  const setQuantity = (productId: string, quantity: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: Math.max(1, quantity)
+    }));
+  };
+
+  const handleAddToCart = (product: Product) => {
+    const quantity = getQuantity(product.id);
+    addItem(product, quantity);
+    // Reset quantity to 1 after adding
+    setQuantity(product.id, 1);
   };
 
   return (
@@ -50,7 +86,7 @@ export default function CatalogoScreen() {
               <Ionicons name="cart-outline" size={24} color="#1193d4" />
             </TouchableOpacity>
             <View className="absolute -top-1 -right-1 bg-primary rounded-full h-5 w-5 items-center justify-center">
-              <Text className="text-xs font-bold text-white">{cartCount}</Text>
+              <Text className="text-xs font-bold text-white">{getTotalItems()}</Text>
             </View>
           </View>
         </View>
@@ -102,134 +138,106 @@ export default function CatalogoScreen() {
         <View className="px-4 pb-20">
           <Text className="text-lg font-bold text-gray-800 mb-3">Productos Destacados</Text>
           
-          {/* Product Card 1 */}
-          <View className="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
-            {/* Product Image */}
-            <View className="h-48 bg-gray-100 items-center justify-center">
-              <Image
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&h=300&fit=crop'
-                }}
-                className="w-full h-full"
-                resizeMode="cover"
-              />
-            </View>
+          {products.map((product) => {
+            const quantity = getQuantity(product.id);
+            const isOutOfStock = product.stock === 0;
             
-            {/* Product Info */}
-            <View className="p-4">
-              <Text className="text-base font-semibold text-gray-800 mb-1">
-                Guantes de Látex Estériles
-              </Text>
-              <Text className="text-sm text-gray-500 mb-3">
-                Código: GL-12345
-              </Text>
-              
-              <View className="flex-row items-center justify-between mb-4">
-                <Text className="text-lg font-bold text-gray-800">
-                  $12.50
-                </Text>
-                <View className="bg-green-100 px-2 py-1 rounded-md">
-                  <Text className="text-xs font-medium text-green-700">
-                    Stock: 35
-                  </Text>
-                </View>
-              </View>
-              
-              {/* Quantity and Add to Cart */}
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-3">
-                  <TouchableOpacity 
-                    className="w-8 h-8 border border-gray-300 rounded-full items-center justify-center"
-                    onPress={() => quantity > 1 && setQuantity(quantity - 1)}
-                  >
-                    <Ionicons name="remove" size={16} color="#6b7280" />
-                  </TouchableOpacity>
-                  
-                  <Text className="text-base font-medium text-gray-800 min-w-[24px] text-center">
-                    {quantity}
-                  </Text>
-                  
-                  <TouchableOpacity 
-                    className="w-8 h-8 border border-gray-300 rounded-full items-center justify-center"
-                    onPress={() => setQuantity(quantity + 1)}
-                  >
-                    <Ionicons name="add" size={16} color="#6b7280" />
-                  </TouchableOpacity>
+            return (
+              <View key={product.id} className="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
+                {/* Product Image */}
+                <View className="h-48 bg-gray-100 items-center justify-center">
+                  <Image
+                    source={{ uri: product.image }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
                 </View>
                 
-                <TouchableOpacity 
-                  className="bg-primary px-4 py-2 rounded-lg flex-row items-center gap-1"
-                  onPress={() => setCartCount(cartCount + quantity)}
-                >
-                  <Ionicons name="cart" size={16} color="white" />
-                  <Text className="text-white font-semibold text-sm">Agregar</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          {/* Product Card 2 */}
-          <View className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <View className="h-48 bg-gray-100 items-center justify-center">
-              <Image
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop'
-                }}
-                className="w-full h-full"
-                resizeMode="cover"
-              />
-            </View>
-            
-            <View className="p-4">
-              <Text className="text-base font-semibold text-gray-800 mb-1">
-                Solución Salina 0.9%
-              </Text>
-              <Text className="text-sm text-gray-500 mb-3">
-                Código: SS-67890
-              </Text>
-              
-              <View className="flex-row items-center justify-between mb-4">
-                <Text className="text-lg font-bold text-gray-800">
-                  $8.75
-                </Text>
-                <View className="bg-red-100 px-2 py-1 rounded-md">
-                  <Text className="text-xs font-medium text-red-700">
-                    Stock: 0
+                {/* Product Info */}
+                <View className="p-4">
+                  <Text className="text-base font-semibold text-gray-800 mb-1">
+                    {product.name}
                   </Text>
-                </View>
-              </View>
-              
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-3">
-                  <TouchableOpacity 
-                    className="w-8 h-8 border border-gray-300 rounded-full items-center justify-center bg-gray-200"
-                    disabled
-                  >
-                    <Ionicons name="remove" size={16} color="#9ca3af" />
-                  </TouchableOpacity>
-                  
-                  <Text className="text-base font-medium text-gray-400 min-w-[24px] text-center">
-                    0
+                  <Text className="text-sm text-gray-500 mb-3">
+                    Código: {product.code}
                   </Text>
                   
-                  <TouchableOpacity 
-                    className="w-8 h-8 border border-gray-300 rounded-full items-center justify-center bg-gray-200"
-                    disabled
-                  >
-                    <Ionicons name="add" size={16} color="#9ca3af" />
-                  </TouchableOpacity>
+                  <View className="flex-row items-center justify-between mb-4">
+                    <Text className="text-lg font-bold text-gray-800">
+                      ${product.price.toFixed(2)}
+                    </Text>
+                    <View className={`px-2 py-1 rounded-md ${
+                      isOutOfStock ? 'bg-red-100' : 'bg-green-100'
+                    }`}>
+                      <Text className={`text-xs font-medium ${
+                        isOutOfStock ? 'text-red-700' : 'text-green-700'
+                      }`}>
+                        Stock: {product.stock}
+                      </Text>
+                    </View>
+                  </View>
+                  
+                  {/* Quantity and Add to Cart */}
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-3">
+                      <TouchableOpacity 
+                        className={`w-8 h-8 border border-gray-300 rounded-full items-center justify-center ${
+                          isOutOfStock ? 'bg-gray-200' : ''
+                        }`}
+                        onPress={() => !isOutOfStock && setQuantity(product.id, quantity - 1)}
+                        disabled={isOutOfStock}
+                      >
+                        <Ionicons 
+                          name="remove" 
+                          size={16} 
+                          color={isOutOfStock ? "#9ca3af" : "#6b7280"} 
+                        />
+                      </TouchableOpacity>
+                      
+                      <Text className={`text-base font-medium min-w-[24px] text-center ${
+                        isOutOfStock ? 'text-gray-400' : 'text-gray-800'
+                      }`}>
+                        {isOutOfStock ? 0 : quantity}
+                      </Text>
+                      
+                      <TouchableOpacity 
+                        className={`w-8 h-8 border border-gray-300 rounded-full items-center justify-center ${
+                          isOutOfStock ? 'bg-gray-200' : ''
+                        }`}
+                        onPress={() => !isOutOfStock && setQuantity(product.id, quantity + 1)}
+                        disabled={isOutOfStock}
+                      >
+                        <Ionicons 
+                          name="add" 
+                          size={16} 
+                          color={isOutOfStock ? "#9ca3af" : "#6b7280"} 
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    
+                    <TouchableOpacity 
+                      className={`px-4 py-2 rounded-lg flex-row items-center gap-1 ${
+                        isOutOfStock ? 'bg-gray-300' : 'bg-primary'
+                      }`}
+                      onPress={() => !isOutOfStock && handleAddToCart(product)}
+                      disabled={isOutOfStock}
+                    >
+                      <Ionicons 
+                        name="cart" 
+                        size={16} 
+                        color={isOutOfStock ? "#6b7280" : "white"} 
+                      />
+                      <Text className={`font-semibold text-sm ${
+                        isOutOfStock ? 'text-gray-500' : 'text-white'
+                      }`}>
+                        {isOutOfStock ? 'Sin Stock' : 'Agregar'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                
-                <TouchableOpacity 
-                  className="bg-gray-300 px-4 py-2 rounded-lg flex-row items-center gap-1"
-                  disabled
-                >
-                  <Ionicons name="cart" size={16} color="#6b7280" />
-                  <Text className="text-gray-500 font-semibold text-sm">Sin Stock</Text>
-                </TouchableOpacity>
               </View>
-            </View>
-          </View>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
